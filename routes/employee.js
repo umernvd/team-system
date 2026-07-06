@@ -1,4 +1,5 @@
 const express = require('express');
+const { roleCheck } = require('../middleware/auth');
 
 const {
     getAllEmployees,
@@ -9,10 +10,9 @@ const {
 
 const router = express.Router();
 
-// Define routes and attach the controller functions
 router.get('/', getAllEmployees);
-router.post('/', createEmployee);
-router.put('/:id', updateEmployee);
-router.delete('/:id', deleteEmployee);
+router.post('/', roleCheck('admin'), createEmployee);
+router.put('/:id', roleCheck('admin'), updateEmployee);
+router.delete('/:id', roleCheck('admin'), deleteEmployee);
 
 module.exports = router;
