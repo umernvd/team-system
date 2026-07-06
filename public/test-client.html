@@ -15,7 +15,7 @@ h1 span{font-size:14px;color:#888;font-weight:400}
 .row label{font-size:13px;color:#666;white-space:nowrap}
 input,select,textarea,button{font-size:13px;padding:6px 10px;border:1px solid #ccc;border-radius:4px;outline:none}
 input:focus,select:focus,textarea:focus{border-color:#4a90d9}
-input[type=\"text\"],input[type=\"password\"],select{flex:1;min-width:100px}
+input[type="text"],input[type="password"],select{flex:1;min-width:100px}
 textarea{width:100%;min-height:70px;font-family:monospace;resize:vertical}
 button{background:#4a90d9;color:#fff;border:none;cursor:pointer;font-weight:600;white-space:nowrap}
 button:hover{background:#357abd}
@@ -41,91 +41,91 @@ tr:hover{background:#f8f9fa}
 
 <h1>&#x1F527; Team Roster <span>API Test Client</span></h1>
 
-<div class=\"card\">
+<div class="card">
   <h2>Configuration</h2>
-  <div class=\"row\">
+  <div class="row">
     <label>Base URL</label>
-    <input type=\"text\" id=\"baseUrl\" value=\"http://localhost:5000\">
+    <input type="text" id="baseUrl" value="http://localhost:5000">
     <label>Auth</label>
-    <select id=\"authMode\" onchange=\"toggleAuthFields()\">
-      <option value=\"session\" selected>Session</option>
-      <option value=\"none\">None</option>
-      <option value=\"basic\">Basic</option>
-      <option value=\"bearer\">Bearer</option>
+    <select id="authMode" onchange="toggleAuthFields()">
+      <option value="session" selected>Session</option>
+      <option value="none">None</option>
+      <option value="basic">Basic</option>
+      <option value="bearer">Bearer</option>
     </select>
   </div>
-  <div id=\"basicFields\" class=\"row hidden\">
+  <div id="basicFields" class="row hidden">
     <label>Username</label>
-    <input type=\"text\" id=\"basicUser\" placeholder=\"username\">
+    <input type="text" id="basicUser" placeholder="username">
     <label>Password</label>
-    <input type=\"password\" id=\"basicPass\" placeholder=\"password\">
+    <input type="password" id="basicPass" placeholder="password">
   </div>
-  <div id=\"bearerFields\" class=\"row hidden\">
+  <div id="bearerFields" class="row hidden">
     <label>Token</label>
-    <input type=\"text\" id=\"bearerToken\" placeholder=\"paste your token here\">
+    <input type="text" id="bearerToken" placeholder="paste your token here">
   </div>
-  <div class=\"auth-status\" id=\"authStatus\">Not logged in</div>
+  <div class="auth-status" id="authStatus">Not logged in</div>
 </div>
 
-<div class=\"card\">
+<div class="card">
   <h2>Authentication</h2>
-  <div class=\"row\">
-    <input type=\"text\" id=\"regUser\" placeholder=\"username\">
-    <input type=\"password\" id=\"regPass\" placeholder=\"password\">
-    <select id=\"regRole\">
-      <option value=\"user\">user</option>
-      <option value=\"admin\">admin</option>
+  <div class="row">
+    <input type="text" id="regUser" placeholder="username">
+    <input type="password" id="regPass" placeholder="password">
+    <select id="regRole">
+      <option value="user">user</option>
+      <option value="admin">admin</option>
     </select>
-    <button onclick=\"register()\">Register</button>
+    <button onclick="register()">Register</button>
   </div>
-  <div class=\"row\">
-    <input type=\"text\" id=\"loginUser\" placeholder=\"username\">
-    <input type=\"password\" id=\"loginPass\" placeholder=\"password\">
-    <button onclick=\"login()\">Login</button>
-    <button class=\"secondary sm\" onclick=\"logout()\">Logout</button>
+  <div class="row">
+    <input type="text" id="loginUser" placeholder="username">
+    <input type="password" id="loginPass" placeholder="password">
+    <button onclick="login()">Login</button>
+    <button class="secondary sm" onclick="logout()">Logout</button>
   </div>
 </div>
 
-<div class=\"card\">
+<div class="card">
   <h2>Employees</h2>
-  <div class=\"row\">
-    <button onclick=\"listEmployees()\">&#x1F504; List All</button>
-    <span id=\"empCount\" style=\"font-size:13px;color:#888\"></span>
+  <div class="row">
+    <button onclick="listEmployees()">&#x1F504; List All</button>
+    <span id="empCount" style="font-size:13px;color:#888"></span>
   </div>
-  <div id=\"empTable\" class=\"hidden\">
-    <table><thead><tr><th>Name</th><th>Role</th><th>Department</th><th>ID</th></tr></thead><tbody id=\"empBody\"></tbody></table>
+  <div id="empTable" class="hidden">
+    <table><thead><tr><th>Name</th><th>Role</th><th>Department</th><th>ID</th></tr></thead><tbody id="empBody"></tbody></table>
   </div>
-  <hr style=\"margin:12px 0;border:none;border-top:1px solid #eee\">
-  <div class=\"row\">
-    <input type=\"text\" id=\"addName\" placeholder=\"name\">
-    <input type=\"text\" id=\"addRole\" placeholder=\"role\">
-    <input type=\"text\" id=\"addDept\" placeholder=\"department\">
-    <button onclick=\"addEmployee()\">+ Add</button>
+  <hr style="margin:12px 0;border:none;border-top:1px solid #eee">
+  <div class="row">
+    <input type="text" id="addName" placeholder="name">
+    <input type="text" id="addRole" placeholder="role">
+    <input type="text" id="addDept" placeholder="department">
+    <button onclick="addEmployee()">+ Add</button>
   </div>
-  <div class=\"row\" style=\"flex-direction:column;align-items:stretch\">
-    <label style=\"font-size:12px;color:#888\">Bulk insert (JSON array)</label>
-    <textarea id=\"bulkData\" placeholder='[{\"name\":\"...\",\"role\":\"...\",\"department\":\"...\"}]'></textarea>
-    <button onclick=\"bulkInsert()\" style=\"align-self:flex-end;margin-top:4px\">Submit Bulk</button>
+  <div class="row" style="flex-direction:column;align-items:stretch">
+    <label style="font-size:12px;color:#888">Bulk insert (JSON array)</label>
+    <textarea id="bulkData" placeholder='[{"name":"...","role":"...","department":"..."}]'></textarea>
+    <button onclick="bulkInsert()" style="align-self:flex-end;margin-top:4px">Submit Bulk</button>
   </div>
-  <hr style=\"margin:12px 0;border:none;border-top:1px solid #eee\">
-  <div class=\"row\">
+  <hr style="margin:12px 0;border:none;border-top:1px solid #eee">
+  <div class="row">
     <label>ID</label>
-    <input type=\"text\" id=\"updId\" style=\"width:180px\" placeholder=\"_id\">
-    <input type=\"text\" id=\"updName\" placeholder=\"new name\">
-    <input type=\"text\" id=\"updRole\" placeholder=\"new role\">
-    <input type=\"text\" id=\"updDept\" placeholder=\"new dept\">
-    <button onclick=\"updateEmployee()\">Update</button>
+    <input type="text" id="updId" style="width:180px" placeholder="_id">
+    <input type="text" id="updName" placeholder="new name">
+    <input type="text" id="updRole" placeholder="new role">
+    <input type="text" id="updDept" placeholder="new dept">
+    <button onclick="updateEmployee()">Update</button>
   </div>
-  <div class=\"row\">
+  <div class="row">
     <label>ID</label>
-    <input type=\"text\" id=\"delId\" style=\"width:180px\" placeholder=\"_id\">
-    <button class=\"danger\" onclick=\"deleteEmployee()\">Delete</button>
+    <input type="text" id="delId" style="width:180px" placeholder="_id">
+    <button class="danger" onclick="deleteEmployee()">Delete</button>
   </div>
 </div>
 
-<div class=\"card\">
+<div class="card">
   <h2>Response</h2>
-  <div id=\"response\"><span style=\"color:#888\">Send a request to see the response here.</span></div>
+  <div id="response"><span style="color:#888">Send a request to see the response here.</span></div>
 </div>
 
 <script>
@@ -170,7 +170,7 @@ function showResponse(status, body) {
   const el = document.getElementById('response');
   const cls = status >= 200 && status < 300 ? 'ok' : 'err';
   const txt = typeof body === 'string' ? body : JSON.stringify(body, null, 2);
-  el.innerHTML = '<div class=\"status ' + cls + '\">' + status + '</div>\\n' + txt;
+  el.innerHTML = `<div class="status ${cls}">${status}</div>\n` + txt;
 }
 
 async function register() {
@@ -192,14 +192,14 @@ async function login() {
     if (authMode() === 'basic') {
       document.getElementById('basicUser').value = u;
       document.getElementById('basicPass').value = p;
-      updateAuthStatus('&#x2705; Stored credentials for <b>' + u + '</b> (role: ' + data.user.role + ')');
+      updateAuthStatus(`&#x2705; Stored credentials for <b>${u}</b> (role: ${data.user.role})`);
     }
     if (authMode() === 'bearer' && data.accessToken) {
       document.getElementById('bearerToken').value = data.accessToken;
-      updateAuthStatus('&#x2705; Token stored for <b>' + data.user.username + '</b> (role: ' + data.user.role + ')');
+      updateAuthStatus(`&#x2705; Token stored for <b>${data.user.username}</b> (role: ${data.user.role})`);
     }
     if (authMode() === 'session') {
-      updateAuthStatus('&#x2705; Session active for <b>' + data.user.username + '</b> (role: ' + data.user.role + ')');
+      updateAuthStatus(`&#x2705; Session active for <b>${data.user.username}</b> (role: ${data.user.role})`);
     }
   } catch(e) {}
 }
@@ -223,9 +223,7 @@ async function listEmployees() {
     const ct = document.getElementById('empCount');
     if (Array.isArray(data)) {
       ct.textContent = 'Total: ' + data.length;
-      tb.innerHTML = data.map(function(e) {
-        return '<tr><td>' + esc(e.name) + '</td><td>' + esc(e.role) + '</td><td>' + esc(e.department) + '</td><td style=\"font-size:11px;color:#999\">' + e._id + '</td></tr>';
-      }).join('');
+      tb.innerHTML = data.map(e => `<tr><td>${esc(e.name)}</td><td>${esc(e.role)}</td><td>${esc(e.department)}</td><td style="font-size:11px;color:#999">${e._id}</td></tr>`).join('');
       document.getElementById('empTable').classList.remove('hidden');
     }
   } catch(e) {}
@@ -258,7 +256,7 @@ async function updateEmployee() {
     const id = document.getElementById('updId').value;
     if (!id) return showResponse(400, { error: 'ID required' });
     const body = {};
-    ['updName','updRole','updDept'].forEach(function(f) {
+    ['updName','updRole','updDept'].forEach(f => {
       const v = document.getElementById(f).value;
       const key = f.replace('upd','').toLowerCase();
       if (v) body[key] = v;
