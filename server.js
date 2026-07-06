@@ -13,6 +13,8 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/teamRoster
 
 app.use(express.json());
 
+app.use(express.static('public'));
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-session-secret-change-me',
     resave: false,
