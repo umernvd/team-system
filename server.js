@@ -20,9 +20,6 @@ connectDB();
 // Auth routes
 app.use('/auth', authRoutes);
 
-// Protect all employee routes with Basic Auth
-app.use('/employees', basicAuth, employeeRoutes);
-
 // Example admin-only route
 app.get('/admin-only', basicAuth, roleCheck('admin'), (req, res) => {
     res.json({ message: 'Welcome, admin! This is a protected admin route.' });
