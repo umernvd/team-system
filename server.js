@@ -12,6 +12,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware to parse JSON bodies
 app.use(express.json());
 
+// Serve the API test client
+app.use(express.static('public'));
+
 connectDB();
 
 // Auth routes
