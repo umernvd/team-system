@@ -2,17 +2,34 @@ const express = require('express');
 const connectDB = require('./db');
 const Employee = require('./models/Employee');
 const employeeRoutes = require('./routes/employee');
+const authRoutes = require('./routes/auth');
+const { authenticateToken, roleCheck } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware to parse JSON bodies
+// Middleware
 app.use(express.json());
 
 connectDB();
 
-app.use('/employees', employeeRoutes);
+// Public auth routes
+app.use('/auth', authRoutes);
+
+// Protected employee routes – require valid access token
+app.use('/employees', authenticateToken, employeeRoutes);
+
+// Example admin-only route
+app.get('/admin-only', authenticateToken, roleCheck('admin'), (req, res) => {
+    res.json({ message: 'Welcome, admin! This is a protected admin-only endpoint.' });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: 'Something went wrong!' });
+});
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
