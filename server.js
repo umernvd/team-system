@@ -19,8 +19,6 @@ connectDB();
 // Public auth routes
 app.use('/auth', authRoutes);
 
-// Protected employee routes – require valid access token
-app.use('/employees', authenticateToken, employeeRoutes);
 
 // Example admin-only route
 app.get('/admin-only', authenticateToken, roleCheck('admin'), (req, res) => {
