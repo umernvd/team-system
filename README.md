@@ -84,11 +84,8 @@ Each layer has a single responsibility:
 ├── webhooks/
 │   └── test.js                  # Test webhook processor
 │
-├── public/
-│   └── test-client.html         # API test client
-│
-└── data/
-    └── employees.json           # Sample data
+└── public/
+    └── test-client.html         # API test client
 ```
 
 ## API Endpoints
