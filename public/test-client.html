@@ -163,7 +163,7 @@ async function api(path, opts = {}) {
   const body = res.headers.get('content-type')?.includes('json') ? await res.json() : await res.text();
   showResponse(res.status, body);
   if (!res.ok) throw { status: res.status, body };
-  return body;
+  return res.ok ? (body.data || body) : body;
 }
 
 function showResponse(status, body) {
@@ -188,18 +188,18 @@ async function login() {
     const u = document.getElementById('loginUser').value;
     const p = document.getElementById('loginPass').value;
     if (!u || !p) return showResponse(400, { error: 'Username and password required' });
-    const data = await api('/auth/login', { method: 'POST', body: JSON.stringify({ username: u, password: p }) });
+    const d = await api('/auth/login', { method: 'POST', body: JSON.stringify({ username: u, password: p }) });
     if (authMode() === 'basic') {
       document.getElementById('basicUser').value = u;
       document.getElementById('basicPass').value = p;
-      updateAuthStatus(`&#x2705; Stored credentials for <b>${u}</b> (role: ${data.user.role})`);
+      updateAuthStatus(`&#x2705; Stored credentials for <b>${u}</b> (role: ${d.user.role})`);
     }
-    if (authMode() === 'bearer' && data.accessToken) {
-      document.getElementById('bearerToken').value = data.accessToken;
-      updateAuthStatus(`&#x2705; Token stored for <b>${data.user.username}</b> (role: ${data.user.role})`);
+    if (authMode() === 'bearer' && d.accessToken) {
+      document.getElementById('bearerToken').value = d.accessToken;
+      updateAuthStatus(`&#x2705; Token stored for <b>${d.user.username}</b> (role: ${d.user.role})`);
     }
     if (authMode() === 'session') {
-      updateAuthStatus(`&#x2705; Session active for <b>${data.user.username}</b> (role: ${data.user.role})`);
+      updateAuthStatus(`&#x2705; Session active for <b>${d.user.username}</b> (role: ${d.user.role})`);
     }
   } catch(e) {}
 }
@@ -218,12 +218,12 @@ function logout() {
 
 async function listEmployees() {
   try {
-    const data = await api('/employees');
+    const list = await api('/employees');
     const tb = document.getElementById('empBody');
     const ct = document.getElementById('empCount');
-    if (Array.isArray(data)) {
-      ct.textContent = 'Total: ' + data.length;
-      tb.innerHTML = data.map(e => `<tr><td>${esc(e.name)}</td><td>${esc(e.role)}</td><td>${esc(e.department)}</td><td style="font-size:11px;color:#999">${e._id}</td></tr>`).join('');
+    if (Array.isArray(list)) {
+      ct.textContent = 'Total: ' + list.length;
+      tb.innerHTML = list.map(e => `<tr><td>${esc(e.name)}</td><td>${esc(e.role)}</td><td>${esc(e.department)}</td><td style="font-size:11px;color:#999">${e._id}</td></tr>`).join('');
       document.getElementById('empTable').classList.remove('hidden');
     }
   } catch(e) {}
