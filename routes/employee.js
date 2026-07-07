@@ -1,18 +1,10 @@
 const express = require('express');
-
-const {
-    getAllEmployees,
-    createEmployee,
-    updateEmployee,
-    deleteEmployee
-} = require('../controllers/employeeController');
-
 const router = express.Router();
-
-// Define routes and attach the controller functions
+const { getAllEmployees, createEmployee, updateEmployee, deleteEmployee } = require('../controllers/employeeController');
+const validate = require('../middlewares/validate');
+const { validateCreate, validateUpdate } = require('../validators/employeeValidator');
 router.get('/', getAllEmployees);
-router.post('/', createEmployee);
-router.put('/:id', updateEmployee);
+router.post('/', validate(validateCreate), createEmployee);
+router.put('/:id', validate(validateUpdate), updateEmployee);
 router.delete('/:id', deleteEmployee);
-
 module.exports = router;
