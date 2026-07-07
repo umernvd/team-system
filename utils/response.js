@@ -1,0 +1,7 @@
+function success(res, data = null, message = 'Success', statusCode = 200) {
+  return res.status(statusCode).json({ success: true, message, data });
+}
+function error(res, message = 'Error', statusCode = 500, errors = []) {
+  return res.status(statusCode).json({ success: false, message, errors: Array.isArray(errors) ? errors : [errors] });
+}
+module.exports = { success, error };
