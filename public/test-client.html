@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee API Test Client</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+    h1 { margin-bottom: 4px; }
+    .subtitle { color: #666; margin-top: 0; }
+    section { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    h2 { margin-top: 0; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+    label { display: block; margin: 6px 0 2px; font-weight: 500; font-size: 0.85rem; }
+    input, textarea { width: 100%; padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; font-size: 0.9rem; }
+    button { margin-top: 8px; padding: 6px 16px; border: none; border-radius: 4px; background: #0066cc; color: #fff; cursor: pointer; font-size: 0.9rem; }
+    button:hover { background: #0052a3; }
+    button.danger { background: #cc3300; }
+    button.danger:hover { background: #a32900; }
+    .row { display: flex; gap: 8px; align-items: end; }
+    .row > div { flex: 1; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 4px; overflow-x: auto; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <h1>Employee API Test Client</h1>
+  <p class="subtitle">No auth — plain Employee CRUD against <span id="baseUrl"></span></p>
+
+  <section>
+    <h2>List Employees</h2>
+    <button onclick="listEmployees()">GET /employees</button>
+  </section>
+
+  <section>
+    <h2>Create Employee</h2>
+    <div class="row">
+      <div><label>Name</label><input id="empName" placeholder="e.g. Alice"></div>
+      <div><label>Role</label><input id="empRole" placeholder="e.g. Developer"></div>
+      <div><label>Department</label><input id="empDept" placeholder="e.g. Engineering"></div>
+    </div>
+    <button onclick="createEmployee()">POST /employees</button>
+  </section>
+
+  <section>
+    <h2>Bulk Create</h2>
+    <label>JSON Array</label>
+    <textarea id="bulkInput" rows="5" placeholder='[{"name":"Bob","role":"Designer","department":"Design"},{"name":"Carol","role":"PM","department":"Product"}]'></textarea>
+    <button onclick="bulkCreate()">POST /employees (array)</button>
+  </section>
+
+  <section>
+    <h2>Update Employee</h2>
+    <div class="row">
+      <div><label>ID</label><input id="updateId" placeholder="MongoDB _id"></div>
+      <div><label>Fields (JSON)</label><input id="updateBody" value='{"role":"Senior Developer"}'></div>
+    </div>
+    <button onclick="updateEmployee()">PUT /employees/:id</button>
+  </section>
+
+  <section>
+    <h2>Delete Employee</h2>
+    <div class="row">
+      <div><label>ID</label><input id="deleteId" placeholder="MongoDB _id"></div>
+    </div>
+    <button class="danger" onclick="deleteEmployee()">DELETE /employees/:id</button>
+  </section>
+
+  <section>
+    <h2>Response</h2>
+    <pre id="response">Response will appear here</pre>
+  </section>
+
+  <script>
+    const BASE = '';
+    document.getElementById('baseUrl').textContent = window.location.origin + BASE;
+
+    function api(method, path, body) {
+      return fetch(BASE + path, {
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined
+      });
+    }
+
+    async function showResponse(res) {
+      const text = await res.text();
+      let formatted;
+      try { formatted = JSON.stringify(JSON.parse(text), null, 2); } catch { formatted = text; }
+      document.getElementById('response').textContent = res.status + ' ' + res.statusText + '\n\n' + formatted;
+    }
+
+    async function listEmployees() {
+      const res = await api('GET', '/employees');
+      showResponse(res);
+    }
+
+    async function createEmployee() {
+      const name = document.getElementById('empName').value.trim();
+      const role = document.getElementById('empRole').value.trim();
+      const department = document.getElementById('empDept').value.trim();
+      if (!name || !role || !department) return alert('All fields required');
+      const res = await api('POST', '/employees', { name, role, department });
+      showResponse(res);
+    }
+
+    async function bulkCreate() {
+      let data;
+      try { data = JSON.parse(document.getElementById('bulkInput').value); } catch { return alert('Invalid JSON'); }
+      const res = await api('POST', '/employees', data);
+      showResponse(res);
+    }
+
+    async function updateEmployee() {
+      const id = document.getElementById('updateId').value.trim();
+      let body;
+      try { body = JSON.parse(document.getElementById('updateBody').value); } catch { return alert('Invalid JSON body'); }
+      if (!id) return alert('ID required');
+      const res = await api('PUT', '/employees/' + id, body);
+      showResponse(res);
+    }
+
+    async function deleteEmployee() {
+      const id = document.getElementById('deleteId').value.trim();
+      if (!id) return alert('ID required');
+      const res = await api('DELETE', '/employees/' + id);
+      showResponse(res);
+    }
+  </script>
+</body>
+</html>
