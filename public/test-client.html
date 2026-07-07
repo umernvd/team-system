@@ -190,8 +190,8 @@ async function register() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
   });
-  const data = await res.json();
-  document.getElementById('response').textContent = res.status + ' ' + res.statusText + '\n\n' + JSON.stringify(data, null, 2);
+  const body = await res.json();
+  document.getElementById('response').textContent = res.status + ' ' + res.statusText + '\n\n' + JSON.stringify(body, null, 2);
   if (res.ok) alert('Registered! You can now log in.');
 }
 
@@ -204,11 +204,12 @@ async function login() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
   });
-  const data = await res.json();
-  document.getElementById('response').textContent = res.status + ' ' + res.statusText + '\n\n' + JSON.stringify(data, null, 2);
+  const body = await res.json();
+  const d = body.data || body;
+  document.getElementById('response').textContent = res.status + ' ' + res.statusText + '\n\n' + JSON.stringify(body, null, 2);
   if (res.ok) {
-    setTokens(data.accessToken, data.refreshToken);
-    showUser(data.user);
+    setTokens(d.accessToken, d.refreshToken);
+    showUser(d.user);
   }
 }
 
@@ -220,8 +221,8 @@ async function logout() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refreshToken })
   });
-  const data = await res.json();
-  document.getElementById('response').textContent = res.status + ' ' + res.statusText + '\n\n' + JSON.stringify(data, null, 2);
+  const body = await res.json();
+  document.getElementById('response').textContent = res.status + ' ' + res.statusText + '\n\n' + JSON.stringify(body, null, 2);
   if (res.ok) {
     document.getElementById('accessToken').value = '';
     document.getElementById('refreshToken').value = '';
