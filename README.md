@@ -1,6 +1,6 @@
 # Team Roster API
 
-A Node.js/Express/MongoDB employee roster API with no authentication — pure Employee CRUD.
+A Node.js/Express/MongoDB employee roster API with Employee CRUD.
 
 ## Quick Start
 
