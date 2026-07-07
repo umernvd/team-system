@@ -1,18 +1,19 @@
 const express = require('express');
-const { isAuthenticated, roleCheck } = require('../middleware/auth');
-
+const router = express.Router();
 const {
     getAllEmployees,
     createEmployee,
     updateEmployee,
     deleteEmployee
 } = require('../controllers/employeeController');
+const isAuthenticated = require('../middlewares/isAuthenticated');
+const roleCheck = require('../middlewares/roleCheck');
+const validate = require('../middlewares/validate');
+const { validateCreate, validateUpdate, validateDelete, validateList } = require('../validators/employeeValidator');
 
-const router = express.Router();
-
-router.get('/', isAuthenticated, getAllEmployees);
-router.post('/', isAuthenticated, roleCheck('admin'), createEmployee);
-router.put('/:id', isAuthenticated, roleCheck('admin'), updateEmployee);
-router.delete('/:id', isAuthenticated, roleCheck('admin'), deleteEmployee);
+router.get('/', isAuthenticated, validate(validateList), getAllEmployees);
+router.post('/', isAuthenticated, roleCheck('admin'), validate(validateCreate), createEmployee);
+router.put('/:id', isAuthenticated, roleCheck('admin'), validate(validateUpdate), updateEmployee);
+router.delete('/:id', isAuthenticated, roleCheck('admin'), validate(validateDelete), deleteEmployee);
 
 module.exports = router;
