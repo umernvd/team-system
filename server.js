@@ -8,6 +8,7 @@ const basicAuth = require('./middlewares/basicAuth');
 const roleCheck = require('./middlewares/roleCheck');
 const notFound = require('./middlewares/notFound');
 const errorHandler = require('./middlewares/errorHandler');
+const { success } = require('./utils/response');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,7 +24,7 @@ app.use('/employees', employeeRoutes);
 app.use('/webhooks', webhookRoutes);
 
 app.get('/admin-only', basicAuth, roleCheck('admin'), (req, res) => {
-  res.json({ message: 'Welcome, admin! This is a protected admin route.' });
+  success(res, null, 'Welcome, admin! This is a protected admin route.');
 });
 
 app.use(notFound);
