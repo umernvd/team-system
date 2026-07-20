@@ -39,7 +39,7 @@ function validateUpdate(body, params) {
   return errors;
 }
 
-function validateDelete(params) {
+function validateDelete(body, params) {
   const errors = [];
   if (!params || !params.id) {
     errors.push('Employee ID is required');
