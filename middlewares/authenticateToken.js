@@ -1,27 +1,32 @@
-const jwt = require('jsonwebtoken');
+const { auth } = require('express-oauth2-jwt-bearer');
 const AppError = require('../utils/AppError');
 
-const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET || 'access-secret-change-me';
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN || 'your-tenant.auth0.com';
+const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE || 'https://team-roster-api';
 
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+const checkJwt = auth({
+  audience: AUTH0_AUDIENCE,
+  issuerBaseURL: `https://${AUTH0_DOMAIN}/`,
+  tokenSigningAlg: 'RS256'
+});
 
-  if (!token) {
-    return next(new AppError('Access token missing', 401));
+function handleAuthError(err, req, res, next) {
+  if (err.statusCode === 401) {
+    return next(new AppError(err.message, 401));
   }
-
-  jwt.verify(token, ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return next(new AppError('Invalid or expired token', 403));
-    }
-    req.user = {
-      id: decoded.userId,
-      username: decoded.username,
-      role: decoded.role
-    };
-    next();
-  });
+  next(err);
 }
 
-module.exports = authenticateToken;
+function setUser(req, res, next) {
+  if (req.auth && req.auth.payload) {
+    const payload = req.auth.payload;
+    req.user = {
+      id: payload.sub,
+      username: payload.nickname || payload.email || 'unknown',
+      role: (payload['https://team-roster-api/role']) || 'viewer'
+    };
+  }
+  next();
+}
+
+module.exports = [checkJwt, handleAuthError, setUser];
