@@ -1,11 +1,12 @@
-# Team Roster API — JWT Auth
+# Team Roster API — Auth0 Auth
 
-A Node.js/Express/MongoDB employee roster API with JWT authentication (access + refresh tokens), built with a clean layered architecture.
+A Node.js/Express/MongoDB employee roster API with Auth0 authentication. Auth0 handles all user management — the backend just verifies Auth0-issued JWT tokens.
 
 ## Quick Start
 
 ```bash
 cp .env.example .env
+# Fill in your Auth0 credentials in .env
 npm install
 node --env-file .env server.js
 # or: npm start
@@ -20,7 +21,7 @@ request → Route → Middleware → Validator → Controller → Service → Re
 | Layer | Job |
 |-------|------|
 | **Route** | Match URL + method, chain middleware |
-| **Middleware** | Log requests, verify JWT, check roles, validate input, handle errors |
+| **Middleware** | Log requests, verify Auth0 JWT, check roles, validate input, handle errors |
 | **Controller** | Parse request, call service, send response |
 | **Service** | Business logic (decide what happens) |
 | **Repository** | Database queries only |
@@ -36,37 +37,31 @@ request → Route → Middleware → Validator → Controller → Service → Re
 ├── .env.example                 # Environment variables template
 ├── package.json
 ├── README.md
+├── PLAN.md                      # Development plan
 │
 ├── routes/                      # URL routing
-│   ├── auth.js                  #   POST /auth/register, /login, /refresh, /logout
-│   ├── employee.js              #   CRUD /employees
+│   ├── employee.js              #   CRUD /employees (Auth0-protected)
 │   └── webhook.js               #   POST /webhooks/test
 │
 ├── controllers/                 # Thin request/response handlers
-│   ├── authController.js
 │   ├── employeeController.js
 │   └── webhookController.js
 │
 ├── services/                    # Business logic
-│   ├── authService.js           #   Token generation, refresh rotation
 │   ├── employeeService.js
 │   └── webhookService.js
 │
 ├── repositories/                # Database queries
-│   ├── userRepository.js
 │   ├── employeeRepository.js
-│   ├── refreshTokenRepository.js
 │   └── webhookEventRepository.js
 │
 ├── validators/                  # Input validation (returns ALL errors)
-│   ├── authValidator.js         #   Register + login
-│   ├── authTokenValidator.js    #   Refresh + logout
-│   ├── employeeValidator.js     #   CRUD
+│   ├── employeeValidator.js
 │   └── webhookValidator.js
 │
 ├── middlewares/                 # Reusable Express middleware
 │   ├── requestLogger.js         #   Logs every request
-│   ├── authenticateToken.js     #   JWT Bearer token verification
+│   ├── authenticateToken.js     #   Auth0 JWT verification via JWKS
 │   ├── roleCheck.js             #   Admin role enforcement
 │   ├── validate.js              #   Runs validators
 │   ├── webhookSignature.js      #   HMAC signature verification
@@ -74,9 +69,7 @@ request → Route → Middleware → Validator → Controller → Service → Re
 │   └── errorHandler.js          #   Central error handler
 │
 ├── models/                      # Mongoose schemas
-│   ├── User.js
 │   ├── Employee.js
-│   ├── RefreshToken.js
 │   └── WebhookEvent.js
 │
 ├── utils/
@@ -86,29 +79,21 @@ request → Route → Middleware → Validator → Controller → Service → Re
 ├── webhooks/
 │   └── test.js                  # Test webhook processor
 │
-└── public/
-    └── test-client.html         # API test client
+├── frontend/                    # React app (separate README inside)
+│
+└── PLAN.md
 ```
 
 ## API Endpoints
-
-### Auth
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| POST | `/auth/register` | None | Create an account |
-| POST | `/auth/login` | None | Login → get access + refresh tokens |
-| POST | `/auth/refresh` | None | Exchange refresh token for new pair |
-| POST | `/auth/logout` | None | Invalidate refresh token |
 
 ### Employees
 
 | Method | Path | Auth | Role |
 |--------|------|------|------|
-| GET | `/employees` | Bearer | Any user |
-| POST | `/employees` | Bearer | Admin |
-| PUT | `/employees/:id` | Bearer | Admin |
-| DELETE | `/employees/:id` | Bearer | Admin |
+| GET | `/employees` | Bearer (Auth0) | Any user |
+| POST | `/employees` | Bearer (Auth0) | Admin |
+| PUT | `/employees/:id` | Bearer (Auth0) | Admin |
+| DELETE | `/employees/:id` | Bearer (Auth0) | Admin |
 
 ### Webhooks
 
@@ -116,19 +101,16 @@ request → Route → Middleware → Validator → Controller → Service → Re
 |--------|------|------|-------------|
 | POST | `/webhooks/test` | Signature | Test webhook with HMAC verification |
 
-### Other
-
-| Method | Path | Auth | Role |
-|--------|------|------|------|
-| GET | `/admin-only` | Bearer | Admin |
-
 ## Auth Flow
 
-1. **Register**: `POST /auth/register` with `{ username, password, role? }`
-2. **Login**: `POST /auth/login` → receive `{ accessToken, refreshToken, user }`
-3. **Access protected routes**: Include `Authorization: Bearer <accessToken>` header
-4. **Token refresh** (when access token expires): `POST /auth/refresh` with `{ refreshToken }` → receive new pair
-5. **Logout**: `POST /auth/logout` with `{ refreshToken }` → token is invalidated
+1. User logs in via **Auth0 Universal Login** (hosted login page by Auth0)
+2. Auth0 redirects back to the React app with an ID token
+3. React app calls `getAccessTokenSilently()` from Auth0 SDK to get an access token
+4. React app sends `Authorization: Bearer <token>` to backend
+5. Backend verifies the token's RS256 signature against Auth0's JWKS endpoint
+6. Backend checks the `audience` and `issuer` match the configured values
+7. If valid, request proceeds to controller → service → repository
+8. When the token expires, Auth0 SDK automatically refreshes it in the background
 
 ## Response Format
 
@@ -139,7 +121,7 @@ request → Route → Middleware → Validator → Controller → Service → Re
 
 **Error:**
 ```json
-{ "success": false, "message": "Validation failed", "errors": ["Name is required", "Role is required"] }
+{ "success": false, "message": "Validation failed", "errors": ["Name is required"] }
 ```
 
 ## Environment Variables
@@ -148,12 +130,22 @@ request → Route → Middleware → Validator → Controller → Service → Re
 |----------|---------|-------------|
 | `PORT` | `5000` | Server port |
 | `MONGO_URI` | `mongodb://127.0.0.1:27017/teamRosterDB` | MongoDB connection string |
-| `SALT_ROUNDS` | `10` | bcrypt salt rounds |
-| `ACCESS_TOKEN_SECRET` | `access-secret-change-me` | JWT signing secret for access tokens |
-| `REFRESH_TOKEN_SECRET` | `refresh-secret-change-me` | JWT signing secret for refresh tokens |
-| `ACCESS_TOKEN_EXPIRY` | `15m` | Access token lifetime |
-| `REFRESH_TOKEN_EXPIRY` | `7d` | Refresh token lifetime |
 | `WEBHOOK_SECRET` | `test-webhook-secret` | HMAC secret for webhook verification |
+| `AUTH0_DOMAIN` | `your-tenant.auth0.com` | Auth0 tenant domain |
+| `AUTH0_AUDIENCE` | `https://team-roster-api` | API identifier in Auth0 dashboard |
+
+## Auth0 Setup
+
+1. Create a free account at [auth0.com](https://auth0.com)
+2. Go to Dashboard → Applications → APIs → Create API
+   - Name: `Team Roster API`
+   - Identifier: `https://team-roster-api`
+3. Go to Dashboard → Applications → Single Page Application → Create
+   - Set Allowed Callback URLs: `http://localhost:3000`
+   - Set Allowed Logout URLs: `http://localhost:3000`
+   - Set Allowed Web Origins: `http://localhost:3000`
+4. Copy the Domain and Client ID from the SPA settings
+5. (Optional) Create an Auth0 Rule to add a `role` claim to user tokens for admin access
 
 ## Testing Webhooks
 
