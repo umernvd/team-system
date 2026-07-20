@@ -18,7 +18,7 @@ exports.bulkCreate = async (data) => {
 };
 
 exports.update = async (id, data) => {
-  return Employee.findByIdAndUpdate(id, data, { new: true });
+  return Employee.findByIdAndUpdate(id, data, { returnDocument: 'after' });
 };
 
 exports.delete = async (id) => {
